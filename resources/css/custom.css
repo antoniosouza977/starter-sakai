@@ -1,0 +1,7 @@
+.p-accordioncontent-content {
+    padding: 0 !important;
+}
+
+.p-accordionpanel > button {
+    padding: .5rem 0 !important;
+}

@@ -1,0 +1,44 @@
+networks:
+    proxy:
+        external: true
+
+services:
+    app:
+        container_name: ${APP_NAME}
+        build:
+            context: .
+            dockerfile: docker/php/Dockerfile
+        restart: unless-stopped
+        volumes:
+            - .:/var/www
+        working_dir: /var/www
+        networks:
+            - proxy
+
+    nginx:
+      image: nginx:stable-alpine
+      container_name: nginx.${APP_NAME}
+      restart: unless-stopped
+      volumes:
+        - ./:/var/www
+        - ./docker/nginx/:/etc/nginx/conf.d/
+      networks:
+        - proxy
+
+    node:
+        image: node:18
+        container_name: node.${APP_NAME}
+        environment:
+          - VITE_HMR_HOST=${VITE_HMR_HOST}
+          - VITE_HMR_PORT=${VITE_HMR_PORT}
+        ports:
+            - "5173:5173"
+        volumes:
+            - ./:/var/www
+        working_dir: /var/www
+        entrypoint: /var/www/docker/scripts/node.sh
+        depends_on:
+            - app
+        networks:
+            - proxy
+
